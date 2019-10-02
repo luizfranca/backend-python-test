@@ -70,7 +70,7 @@ def todos_POST():
 
     if description:
         g.db.execute(
-            "INSERT INTO todos (user_id, description) VALUES ('%s', '%s')"
+            "INSERT INTO todos (user_id, description, completed) VALUES ('%s', '%s', 0)"
             % (session['user']['id'], description)
         )
         g.db.commit()
@@ -83,5 +83,18 @@ def todo_delete(id):
     if not session.get('logged_in'):
         return redirect('/login')
     g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
+    g.db.commit()
+    return redirect('/todo')
+
+@app.route('/todo/completed', methods=['POST'])
+def todo_completed():
+    if not session.get('logged_in'):
+        return redirect('/login')
+
+    data = request.get_json()
+    id = data['id']
+    completed = data['completed']
+
+    g.db.execute("UPDATE todos SET completed = %s WHERE id ='%s'" % (completed, id))
     g.db.commit()
     return redirect('/todo')

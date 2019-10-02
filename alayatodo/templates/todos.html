@@ -4,7 +4,7 @@
 <div class="col-md-4 col-md-offset-4">
     <h1>Todo List:</h1>
     <table class="table table-striped">
-        <th>#</th><th>User</th><th>Description</th><th></th>
+        <th>#</th><th>User</th><th>Description</th><th>Completed</th><th></th>
         {% for todo in todos %}
             <tr>
                 <td>{{ todo.id }}</td>
@@ -13,6 +13,9 @@
                     <a href="{{ url_for('todo', id=todo.id) }}">
                        {{ todo.description }}
                     </a>
+                </td>
+                <td>
+                    <input type="checkbox" value="{{ todo.id }}" {% if todo.completed %} checked {% endif %} onchange="toggleCheckbox(this)"/>
                 </td>
                 <td>
                     <form method="post" action="{{ url_for('todo_delete', id=todo.id) }}">
@@ -33,4 +36,19 @@
         </tr>
     </table>
 </div>
+{% block script %}
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script>
+    function toggleCheckbox(checkbox) {
+        var data = {'id' : checkbox.value, 'completed' : checkbox.checked};
+
+        $.ajax({
+            method: 'POST',
+            contentType: 'application/json',
+            url: {{ url_for('todo_completed')|tojson }},
+            data: JSON.stringify(data),
+        });
+    }
+  </script>
+{% endblock %}
 {% endblock %}
