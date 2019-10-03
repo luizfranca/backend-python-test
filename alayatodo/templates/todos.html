@@ -26,7 +26,7 @@
         {% endfor %}
         <tr>
             <form method="post" action="{{ url_for('todos_POST') }}">
-                <td colspan="3">
+                <td colspan="4">
                     <input type="textbox" name="description" class="small-6 small-center" placeholder="Description...">
                 </td>
                 <td>
@@ -36,6 +36,9 @@
         </tr>
     </table>
 </div>
+{{ pagination.info }}
+{{ pagination.links }}
+
 {% block script %}
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script>

@@ -1,4 +1,5 @@
 from alayatodo import app
+from flask_paginate import Pagination, get_page_parameter, get_page_args
 from flask import (
     flash,
     g,
@@ -66,9 +67,17 @@ def todo_json(id):
 def todos():
     if not session.get('logged_in'):
         return redirect('/login')
-    cur = g.db.execute("SELECT * FROM todos")
+    _, per_page, offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
+    cur = g.db.execute("SELECT * FROM todos LIMIT %s,%s" % (offset, per_page))
     todos = cur.fetchall()
-    return render_template('todos.html', todos=todos)
+
+    cur = g.db.execute("SELECT COUNT(*) FROM todos")
+    amount_todos = cur.fetchone()[0]
+
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    pagination = Pagination(page=page, total=amount_todos, record_name='todos')
+
+    return render_template('todos.html', todos=todos, pagination=pagination, page=page, per_page=per_page,)
 
 
 @app.route('/todo', methods=['POST'])
