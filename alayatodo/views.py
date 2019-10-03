@@ -1,5 +1,6 @@
 from alayatodo import app
 from flask import (
+    flash,
     g,
     jsonify,
     redirect,
@@ -85,8 +86,8 @@ def todos_POST():
         )
         g.db.commit()
 
+        flash('You have added a new item')
     return redirect('/todo')
-
 
 @app.route('/todo/<id>', methods=['POST'])
 def todo_delete(id):
@@ -94,6 +95,8 @@ def todo_delete(id):
         return redirect('/login')
     g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
     g.db.commit()
+
+    flash('The item %s has been deleted' % id)
     return redirect('/todo')
 
 @app.route('/todo/completed', methods=['POST'])
