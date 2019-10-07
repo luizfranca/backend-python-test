@@ -49,6 +49,9 @@ def logout():
 
 @app.route('/todo/<id>', methods=['GET'])
 def todo(id):
+    if not session.get('logged_in'):
+        return redirect('/login')
+        
     todo = Todo.query.filter_by(id=id).first().to_dict()
 
     return render_template('todo.html', todo=todo)
