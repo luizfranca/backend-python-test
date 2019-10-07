@@ -19,8 +19,8 @@ def _run_sql(filename):
             stderr=subprocess.STDOUT,
             shell=True
         )
-    except subprocess.CalledProcessError, ex:
-        print ex.output
+    except subprocess.CalledProcessError as ex:
+        print(ex.output)
         os.exit(1)
 
 
@@ -29,9 +29,9 @@ if __name__ == '__main__':
     if args['initdb']:
         _run_sql('resources/database.sql')
         _run_sql('resources/fixtures.sql')
-        print "AlayaTodo: Database initialized."
+        print ("AlayaTodo: Database initialized.")
     elif args['migrate']:
         _run_sql('resources/migration.sql')
-        print "AlayaTodo: Database migrated."
+        print ("AlayaTodo: Database migrated.")
     else:
         app.run(use_reloader=True)
