@@ -1,4 +1,4 @@
-from alayatodo import app, db
+from alayatodo import app, db, salt, bcrypt
 from alayatodo.models.todo import Todo
 from alayatodo.models.users import Users 
 from flask_paginate import Pagination, get_page_parameter, get_page_args
@@ -29,10 +29,10 @@ def login():
 def login_POST():
     username = request.form.get('username')
     password = request.form.get('password')
+
+    user = Users.query.filter_by(username=username).first()
     
-    user = Users.query.filter_by(username=username, password=password).first()
-    
-    if user:
+    if user and bcrypt.check_password_hash(user.password, password + salt):
         session['user'] = user.to_dict()
         session['logged_in'] = True
         return redirect('/todo')

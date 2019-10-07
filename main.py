@@ -4,12 +4,13 @@ Usage:
   main.py [run]
   main.py initdb
   main.py migrate
+  main.py hashpassword
 """
 from docopt import docopt
 import subprocess
 import os
 
-from alayatodo import app
+from alayatodo import app, hashpasswords
 
 
 def _run_sql(filename):
@@ -23,7 +24,6 @@ def _run_sql(filename):
         print(ex.output)
         os.exit(1)
 
-
 if __name__ == '__main__':
     args = docopt(__doc__)
     if args['initdb']:
@@ -33,5 +33,7 @@ if __name__ == '__main__':
     elif args['migrate']:
         _run_sql('resources/migration.sql')
         print ("AlayaTodo: Database migrated.")
+    elif args['hashpassword']:
+        hashpasswords()
     else:
         app.run(use_reloader=True)
