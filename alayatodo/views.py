@@ -51,19 +51,23 @@ def logout():
 def todo(id):
     if not session.get('logged_in'):
         return redirect('/login')
-        
-    todo = Todo.query.filter_by(id=id).first().to_dict()
 
-    return render_template('todo.html', todo=todo)
+    todo = Todo.query.filter_by(id=id, user_id=session['user']['id']).first()
+    if todo:
+        return render_template('todo.html', todo=todo.to_dict())
+
+    return redirect('/todo')
 
 @app.route('/todo/<id>/json', methods=['GET'])
 def todo_json(id):
     if not session.get('logged_in'):
         return redirect('/login')
 
-    todo = Todo.query.filter_by(id=id).first().to_dict()
-     
-    return jsonify(**todo)
+    todo = Todo.query.filter_by(id=id, user_id=session['user']['id']).first()
+    if todo:
+        return jsonify(**todo.to_dict())
+
+    return redirect('/todo')
 
 @app.route('/todo', methods=['GET'])
 @app.route('/todo/', methods=['GET'])
@@ -72,7 +76,7 @@ def todos():
         return redirect('/login')
     page, per_page, offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
 
-    cur = Todo.query.paginate(page, per_page, False, 10)
+    cur = Todo.query.filter_by(user_id=session['user']['id']).paginate(page, per_page, False, 10)
     amount_todos = cur.total
     todos = cur.items
 
@@ -106,12 +110,12 @@ def todo_delete(id):
     if not session.get('logged_in'):
         return redirect('/login')
 
-    todo = Todo.query.filter_by(id=id).first()
+    todo = Todo.query.filter_by(id=id, user_id=session['user']['id']).first()
+    if todo:
+        db.session.delete(todo)
+        db.session.commit()
 
-    db.session.delete(todo)
-    db.session.commit()
-
-    flash('The item %s has been deleted' % id)
+        flash('The item %s has been deleted' % id)
     return redirect('/todo')
 
 @app.route('/todo/completed', methods=['POST'])
@@ -123,8 +127,9 @@ def todo_completed():
     id = data['id']
     completed = data['completed']
 
-    todo = Todo.query.filter_by(id=id).first()
-    todo.completed = completed
-    db.session.commit()
+    todo = Todo.query.filter_by(id=id, user_id=session['user']['id']).first()
+    if todo:
+        todo.completed = completed
+        db.session.commit()
 
     return redirect('/todo')
